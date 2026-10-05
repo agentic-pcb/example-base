@@ -1,6 +1,6 @@
 # Design rules
 
-Schematic and PCB rules for the board (`index.circuit.tsx`): alignment (1-13), routing (14-15), mounting (16), schematic (17-18) and placement (19-25). A board whose geometry is fixed by its parts (e.g. an LED matrix) may be exempt; say so in the README. Where two rules pull against each other the electrical one wins (decoupling, rule 22, over via avoidance, rule 15, and over equal spacing, rules 10 and 11); the status table at the end records every such exception.
+Schematic and PCB rules for the board (`index.circuit.tsx`): alignment (1-13), routing (14-15 and 26), mounting (16), schematic (17-18) and placement (19-25). Rule 26 (corners) was added last and is listed with the routing rules; the numbers of the others did not change. A board whose geometry is fixed by its parts (e.g. an LED matrix) may be exempt; say so in the README. Where two rules pull against each other the electrical one wins (decoupling, rule 22, over via avoidance, rule 15, and over equal spacing, rules 10 and 11); the status table at the end records every such exception.
 
 ## Alignment rules
 
@@ -22,6 +22,7 @@ Schematic and PCB rules for the board (`index.circuit.tsx`): alignment (1-13), r
 
 14. **Double width for power lines:** Draw the power lines (5V, GND) at least twice as wide as the standard (signal) trace.
 15. **Avoid vias on power lines:** Try not to use vias on the power lines (5V, GND); route them on one layer where possible. A via at the GND pad of a decoupling capacitor or of a regulator is accepted when the alternative is a longer path (rule 22 wins).
+26. **Avoid 90 degree corners:** Try not to turn a trace by 90 degrees; make every corner two 45 degree bends instead. A T junction (a trace joining another one) is allowed. A short cut (down to 0.3 mm) where a pad is close, or a bend inside a pad, is accepted. For hand-routed copper (`<trace pcbPath>`) write a small helper that cuts each corner; check autorouted copper in the render and fix any 90 degree corner with an explicit `pcbPath`.
 
 ## Mounting rules
 
@@ -44,9 +45,9 @@ Schematic and PCB rules for the board (`index.circuit.tsx`): alignment (1-13), r
 
 ## Project status
 
-Audit the layout against rules 1..25 once a real design replaces the placeholder: board size, grid origin (board centre) and grid step, with numbers measured from `dist/<name>/circuit.json`. One row per rule: `pass`, `exception` (say what and why, including every rule-22 / rule-15 trade-off) or `n/a`.
+Audit the layout against rules 1..26 once a real design replaces the placeholder: board size, grid origin (board centre) and grid step, with numbers measured from `dist/<name>/circuit.json`. One row per rule: `pass`, `exception` (say what and why, including every rule-22 / rule-15 trade-off) or `n/a`.
 
 | # | Status | How |
 | --- | --- | --- |
 
-Placeholder (20 x 10 mm, one resistor, one LED, one trace): audited against all 25 rules; rule 3 was the only miss (parts at ±4 mm, now ±3.81 mm = 3 x 1.27 mm); everything else holds or is n/a (no connectors, holes, ICs or power nets).
+Placeholder (20 x 10 mm, one resistor, one LED, one trace): audited against all 26 rules; rule 3 was the only miss (parts at ±4 mm, now ±3.81 mm = 3 x 1.27 mm); everything else holds or is n/a (no connectors, holes, ICs or power nets; the single trace is straight, so rule 26 holds).
