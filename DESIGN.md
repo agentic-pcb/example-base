@@ -1,6 +1,6 @@
 # Design rules
 
-Generic schematic and PCB rules for any tscircuit board (`*.circuit.tsx`). This file is the single source of truth, referenced by URL; it is not copied into projects. Rules: alignment (1-13), routing (14-17), mounting (18), schematic (19-20) and placement (21-27). A board whose geometry is fixed by its parts (e.g. an LED matrix) may be exempt; say so in the project README, together with every other exception. Where two rules pull against each other the electrical one wins (decoupling, rule 24, over via avoidance, rule 15, and over equal spacing, rules 10 and 11).
+Generic schematic and PCB rules for any tscircuit board (`*.circuit.tsx`). This file is the single source of truth, referenced by URL; it is not copied into projects. Rules: alignment (1-13), routing (14-17), mounting (18), schematic (19-20), placement (21-27) and outline (28). A board whose geometry is fixed by its parts (e.g. an LED matrix) may be exempt; say so in the project README, together with every other exception. Where two rules pull against each other the electrical one wins (decoupling, rule 24, over via avoidance, rule 15, and over equal spacing, rules 10 and 11).
 
 ## Alignment rules
 
@@ -43,3 +43,7 @@ Generic schematic and PCB rules for any tscircuit board (`*.circuit.tsx`). This 
 25. **Keep crystals close:** A crystal sits within 5 mm of the MCU or clock chip, and its clock traces are short, straight and of equal length.
 26. **Keep the board edge free:** Keep every part body, pad and silkscreen text at least 1.27 mm (0.05 in) from the board edge, so nothing is damaged when the board is separated from a panel (5 mm if the board is cut from a panel by routed tabs; say in the README if a panel is used). Deliberate edge parts (rule 13) are the exception.
 27. **Handle heat:** Put high-heat parts (regulators, MOSFETs, power resistors) in the airflow and give them copper to spread the heat: a dedicated pour on their tab, thermal vias, and wide traces.
+
+## Outline rules
+
+28. **Round the board corners:** Give every outer corner of the board a 2 mm radius (`<board borderRadius={2}>`), also for a board cut from a panel. Keep part bodies, pads and silkscreen text clear of the rounded corner; the edge clearance of rule 26 is measured from the curve.
