@@ -59,6 +59,7 @@ The template ships without a formatter or linter. When the user wants one (ask f
 
 ## Conventions and rules
 
+- PCB layout follows `DESIGN.md` (alignment and routing rules). Read it before moving or adding parts, pads or labels.
 - Detailed guidance lives in the bundled skill: `.claude/skills/tscircuit/` (SKILL.md, CLI.md, SYNTAX.md, WORKFLOW.md, CHECKLIST.md, FOOTPRINTS.md, per-element docs in `elements/`, templates in `templates/`).
 - Don't invent JSX props or CLI flags; confirm in `elements/*.md` or `--help`. Learn from https://docs.tscircuit.com/ before writing or changing circuit code, not only for what the skill doesn't cover. `https://docs.tscircuit.com/llms.txt` (same as `ai.txt`) is the whole docs set as one ~870 KB Repomix dump: run `npm run update:llms` to save it as `docs/llms.txt` (gitignored) and grep that file, never load it whole. The skill comes from https://github.com/tscircuit/skill (`npx skills add tscircuit/skill`).
 - Define `pinLabels` and `pinAttributes` on chips before wiring traces. Reference pins by label (`U1.VCC`, `net.GND`).
