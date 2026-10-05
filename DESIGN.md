@@ -20,9 +20,9 @@ Generic schematic and PCB rules for any tscircuit board (`*.circuit.tsx`). This 
 
 ## Routing rules
 
-14. **Double width for power lines:** Draw the power lines (5V, GND) at least twice as wide as the standard (signal) trace.
-15. **Avoid vias on 5V lines:** Try not to use vias on the 5V lines; route them on one layer where possible. A via on a 5V line at a decoupling capacitor or a regulator is accepted when the alternative is a longer path (rule 24 wins).
-16. **Pour GND copper:** Try to fill the free area of the board with a GND copper pour (on both layers of a two-layer board) and stitch the layers together with GND vias. Keep the pour clear of the board edge (rule 26) and of any antenna or keep-out area.
+14. **Double width for power lines:** Draw every power line (any voltage net such as 5V, 3V3, VCC, VDD, VIN, VBUS) and GND at least twice as wide as the standard (signal) trace.
+15. **Avoid vias on power lines:** Try not to use vias on any power line (5V, 3V3, VCC, VDD, VIN, VBUS, every supply net other than GND); route them on one layer where possible. A via on a power line at a decoupling capacitor or a regulator is accepted when the alternative is a longer path (rule 24 wins).
+16. **Pour GND copper:** Try to fill the free area of the bottom layer of the board with a GND copper pour; do not pour on the top layer. Connect top-layer GND pads to the bottom pour with GND vias. Keep the pour clear of the board edge (rule 26) and of any antenna or keep-out area.
 17. **Avoid 90 degree corners:** Try not to turn a trace by 90 degrees; make every corner two 45 degree bends instead. A T junction (a trace joining another one) is allowed. A short cut (down to 0.3 mm) where a pad is close, or a bend inside a pad, is accepted. For hand-routed copper (`<trace pcbPath>`) write a small helper that cuts each corner; check autorouted copper in the render and fix any 90 degree corner with an explicit `pcbPath`.
 
 ## Mounting rules
