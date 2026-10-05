@@ -1,6 +1,6 @@
 # Design rules
 
-Schematic and PCB rules for the board (`index.circuit.tsx`): alignment (1-13), routing (14-15 and 26), mounting (16), schematic (17-18) and placement (19-25). Rule 26 (corners) was added last and is listed with the routing rules; the numbers of the others did not change. A board whose geometry is fixed by its parts (e.g. an LED matrix) may be exempt; say so in the README. Where two rules pull against each other the electrical one wins (decoupling, rule 22, over via avoidance, rule 15, and over equal spacing, rules 10 and 11); the status table at the end records every such exception.
+Generic schematic and PCB rules for any tscircuit board (`*.circuit.tsx`). This file is the single source of truth, referenced by URL; it is not copied into projects. Rules: alignment (1-13), routing (14-17), mounting (18), schematic (19-20) and placement (21-27). A board whose geometry is fixed by its parts (e.g. an LED matrix) may be exempt; say so in the project README, together with every other exception. Where two rules pull against each other the electrical one wins (decoupling, rule 24, over via avoidance, rule 15, and over equal spacing, rules 10 and 11).
 
 ## Alignment rules
 
@@ -21,33 +21,25 @@ Schematic and PCB rules for the board (`index.circuit.tsx`): alignment (1-13), r
 ## Routing rules
 
 14. **Double width for power lines:** Draw the power lines (5V, GND) at least twice as wide as the standard (signal) trace.
-15. **Avoid vias on power lines:** Try not to use vias on the power lines (5V, GND); route them on one layer where possible. A via at the GND pad of a decoupling capacitor or of a regulator is accepted when the alternative is a longer path (rule 22 wins).
-26. **Avoid 90 degree corners:** Try not to turn a trace by 90 degrees; make every corner two 45 degree bends instead. A T junction (a trace joining another one) is allowed. A short cut (down to 0.3 mm) where a pad is close, or a bend inside a pad, is accepted. For hand-routed copper (`<trace pcbPath>`) write a small helper that cuts each corner; check autorouted copper in the render and fix any 90 degree corner with an explicit `pcbPath`.
+15. **Avoid vias on 5V lines:** Try not to use vias on the 5V lines; route them on one layer where possible. A via on a 5V line at a decoupling capacitor or a regulator is accepted when the alternative is a longer path (rule 24 wins).
+16. **Pour GND copper:** Try to fill the free area of the board with a GND copper pour (on both layers of a two-layer board) and stitch the layers together with GND vias. Keep the pour clear of the board edge (rule 26) and of any antenna or keep-out area.
+17. **Avoid 90 degree corners:** Try not to turn a trace by 90 degrees; make every corner two 45 degree bends instead. A T junction (a trace joining another one) is allowed. A short cut (down to 0.3 mm) where a pad is close, or a bend inside a pad, is accepted. For hand-routed copper (`<trace pcbPath>`) write a small helper that cuts each corner; check autorouted copper in the render and fix any 90 degree corner with an explicit `pcbPath`.
 
 ## Mounting rules
 
-16. **Keep the screw head area free:** Around every mounting hole keep a free circle of twice the screw head width: 3.5 mm hole, 3 mm screw (5.5 mm head), 6 mm free diameter, concentric with the hole. Place no component, pad or silkscreen text inside it, as far as the board allows. Traces and the copper pour may run through it.
+18. **Keep the screw head area free:** Around every mounting hole keep a free circle of twice the screw head width: 3.5 mm hole, 3 mm screw (5.5 mm head), 6 mm free diameter, concentric with the hole. Place no component, pad or silkscreen text inside it, as far as the board allows. Traces and the copper pour may run through it.
 
 ## Schematic rules
 
-17. **Group by function:** Give every functional block (e.g. MCU, power, outputs, input) its own `<schematicsection>` (`schSectionName`) on the one sheet and keep its parts clustered by `schX`/`schY`, with a clear gap between blocks. Add a second sheet only when a block no longer fits on one.
-18. **Draw the signal path left to right:** Put the inputs (power in, buttons) on the left, the core (MCU, IC) in the middle and the outputs (drivers, connectors) on the right, so the circuit reads from left to right. Keep the pins of one function on one side of a symbol (inputs left, outputs right, supply on top, GND below).
+19. **Group by function:** Give every functional block (e.g. MCU, power, outputs, input) its own `<schematicsection>` (`schSectionName`) on the one sheet and keep its parts clustered by `schX`/`schY`, with a clear gap between blocks. Add a second sheet only when a block no longer fits on one.
+20. **Draw the signal path left to right:** Put the inputs (power in, buttons) on the left, the core (MCU, IC) in the middle and the outputs (drivers, connectors) on the right, so the circuit reads from left to right. Keep the pins of one function on one side of a symbol (inputs left, outputs right, supply on top, GND below).
 
 ## Placement rules
 
-19. **Place the fixed parts first:** Connectors, module headers and the power input (their positions come from the case and the pin rows) go first; then the power parts, then the small parts around them.
-20. **Keep a function block together:** Put the parts of one block next to each other (the whole power supply, the whole level shifter section). A block may only split when a pin position forces it.
-21. **Separate analog, digital and power:** Keep analog parts (audio, sensors, lines with current peaks), the digital side (MCU, logic, data lines) and the power parts in their own areas; no digital line runs alongside a sensitive or high-current analog line, and the supply parts sit on the supply path.
-22. **Decouple at the pin:** Put the decoupling capacitor of every IC within 3 mm (pad centre to pad centre) of its power pin, or as close as physically possible, joined by a short, wide trace (at least the width of rule 14 for 5V and GND). This rule is a must. Modules that carry their own capacitors are exempt.
-23. **Keep crystals close:** A crystal sits within 5 mm of the MCU or clock chip, and its clock traces are short, straight and of equal length.
-24. **Keep the board edge free:** Keep every part body, pad and silkscreen text at least 1.27 mm (0.05 in) from the board edge, so nothing is damaged when the board is separated from a panel (5 mm if the board is cut from a panel by routed tabs; say in the README if a panel is used). Deliberate edge parts (rule 13) are the exception.
-25. **Handle heat:** Put high-heat parts (regulators, MOSFETs, power resistors) in the airflow and give them copper to spread the heat: a dedicated pour on their tab, thermal vias, and wide traces.
-
-## Project status
-
-Audit the layout against rules 1..26 once a real design replaces the placeholder: board size, grid origin (board centre) and grid step, with numbers measured from `dist/<name>/circuit.json`. One row per rule: `pass`, `exception` (say what and why, including every rule-22 / rule-15 trade-off) or `n/a`.
-
-| # | Status | How |
-| --- | --- | --- |
-
-Placeholder (20 x 10 mm, one resistor, one LED, one trace): audited against all 26 rules; rule 3 was the only miss (parts at ±4 mm, now ±3.81 mm = 3 x 1.27 mm); everything else holds or is n/a (no connectors, holes, ICs or power nets; the single trace is straight, so rule 26 holds).
+21. **Place the fixed parts first:** Connectors, module headers and the power input (their positions come from the case and the pin rows) go first; then the power parts, then the small parts around them.
+22. **Keep a function block together:** Put the parts of one block next to each other (the whole power supply, the whole level shifter section). A block may only split when a pin position forces it.
+23. **Separate analog, digital and power:** Keep analog parts (audio, sensors, lines with current peaks), the digital side (MCU, logic, data lines) and the power parts in their own areas; no digital line runs alongside a sensitive or high-current analog line, and the supply parts sit on the supply path.
+24. **Decouple at the pin:** Put the decoupling capacitor of every IC within 3 mm (pad centre to pad centre) of its power pin, or as close as physically possible, joined by a short, wide trace (at least the width of rule 14 for 5V and GND). This rule is a must. Modules that carry their own capacitors are exempt.
+25. **Keep crystals close:** A crystal sits within 5 mm of the MCU or clock chip, and its clock traces are short, straight and of equal length.
+26. **Keep the board edge free:** Keep every part body, pad and silkscreen text at least 1.27 mm (0.05 in) from the board edge, so nothing is damaged when the board is separated from a panel (5 mm if the board is cut from a panel by routed tabs; say in the README if a panel is used). Deliberate edge parts (rule 13) are the exception.
+27. **Handle heat:** Put high-heat parts (regulators, MOSFETs, power resistors) in the airflow and give them copper to spread the heat: a dedicated pour on their tab, thermal vias, and wide traces.

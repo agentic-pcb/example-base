@@ -29,7 +29,7 @@ Fill in everything marked `TODO` before designing. Delete a bullet only if it cl
 
 Calculations and the reasoning behind part values, footprints, grounding, trace widths, routing. Record why, not only what.
 
-Layout rules: see [DESIGN.md](DESIGN.md).
+Layout rules: see [DESIGN.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/DESIGN.md).
 
 ## Finding JLCPCB parts
 
@@ -59,7 +59,7 @@ Before sharing or fabricating, work through the checks in order: `tsci check net
 ## References
 
 - [tscircuit docs](https://docs.tscircuit.com/); the full docs are also available as one text file at https://docs.tscircuit.com/llms.txt
-- [DESIGN.md](DESIGN.md): PCB alignment, routing, mounting, schematic and placement rules
+- [DESIGN.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/DESIGN.md): PCB alignment, routing, mounting, schematic and placement rules
 - [tscircuit datasheets](https://tscircuit.com/datasheets)
 - [jlcsearch](https://jlcsearch.tscircuit.com/)
 - AI skill: [tscircuit/skill](https://github.com/tscircuit/skill), installed in `.claude/skills/tscircuit/`
