@@ -29,7 +29,7 @@ The images at the top of `README.md` are the schematic SVG `__snapshots__/index.
 ## Commands
 
 - `npm start` — `tsci dev`, interactive preview server (interactive visual feedback only; prefer `tsci build` for iteration)
-- `npm run check:fast` — `tsc --noEmit`; the only JS-level check (no linter or tests), catches wrong prop names/types. `check:wiring` adds netlist + schematic-placement; `check:full` adds `tsci build` + `tsci check shorts`
+- `npm run check:fast` — `tsc --noEmit`; the only JS-level check (no linter or tests unless the optional Prettier + ESLint setup below was added), catches wrong prop names/types. `check:wiring` adds netlist + schematic-placement; `check:full` adds `tsci build` + `tsci check shorts`
 - `npm run update:skill` — re-installs the vendored `.claude/skills/tscircuit/` from upstream (`tscircuit/skill`); never edit that folder by hand. `npm run update:llms` fetches the docs dump
 - `npx tsci build [file]` — compile and validate; auto-detects `index.circuit.tsx` or `mainEntrypoint` in `tscircuit.config.ts`. Add `--pcb-png` or `--all-images` for renders
 - `npx tsci snapshot [--pcb-only|--3d]` — regenerate visuals; `--test` fails on visual diffs without overwriting
@@ -45,6 +45,17 @@ When to run checks (tiered, not everything every time):
 - After layout/footprint/position changes: also `npm run export:images` (the README embeds the committed PNGs) and `npx tsci snapshot --pcb-only -u`; after `sch*` or schematic changes use `npx tsci snapshot --schematic-only -u` (the README embeds that SVG), `tsci check placement` and `tsci check routing-difficulty`.
 - Before committing a design change and before fab: `npm run check:full` (check:wiring + `tsci build` + `tsci check shorts`). Before ordering only: `npm run export:gerbers`.
 - Schematic SVG export (`tsci export -f schematic-svg`) is for inspecting schematic changes, not a gate.
+
+## Optional: Prettier + ESLint (not set up in the template)
+
+The template ships without a formatter or linter. When the user wants one (ask first, don't add it unprompted), a light setup that worked in `bedroom-clock`:
+
+- Dev deps: `prettier eslint @eslint/js typescript-eslint eslint-config-prettier eslint-plugin-simple-import-sort`. Skip `eslint-plugin-unicorn`: it flags the short geometry names and fights compact math code.
+- `.prettierrc`: `singleQuote: true`, `trailingComma: "none"`, `endOfLine: "lf"`, **`printWidth: 300`** so each tscircuit element (`<chip ...>`, `<smtpad ...>`, `<trace pcbPath=...>`) stays on one line. Ask whether to keep semicolons (Prettier default; the user's other repos use them) or set `semi: false`.
+- `.prettierignore`: `dist`, `.tscircuit`, `.claude`, `__snapshots__`, `docs`, `node_modules`, `package-lock.json`, `*.md`, `*.json` (never reformat the vendored skill, snapshots or the README tables).
+- `eslint.config.mjs` (flat config, same ignores): `js.configs.recommended`, `tseslint.configs.recommended`, `eslint-config-prettier`, plus rules `curly: ['error', 'multi']`, `simple-import-sort/imports` and `/exports`, `@typescript-eslint/consistent-type-imports` (inline type imports).
+- Scripts: `format` = `prettier --write .`, `lint` = `eslint .`, and `check:fast` = `tsc --noEmit && eslint . && prettier --check .` (so `check:wiring` and `check:full` inherit it). Run `eslint . --fix` and `npm run format` once as their own commit.
+- Verify formatting changed no design: `npx tsci snapshot --pcb-only --test` and `--schematic-only --test` must show no diff. Then update this file's Commands section (drop "no linter", mention `format`/`lint`).
 
 ## Conventions and rules
 
