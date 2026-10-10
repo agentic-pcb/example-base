@@ -70,8 +70,8 @@ Before sharing or fabricating, work through the checks in order: `tsci check net
 ## References
 
 - [tscircuit docs](https://docs.tscircuit.com/); the full docs are also available as one text file at https://docs.tscircuit.com/llms.txt
-- [LAYOUT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/LAYOUT_RULES.md): PCB alignment, routing, mounting, schematic, placement and part-specific layout rules
-- [CIRCUIT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/CIRCUIT_RULES.md): part, value and wiring rules, each with its source
+- [LAYOUT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/LAYOUT_RULES.md): PCB alignment, routing, mounting, schematic, placement, part-specific layout and manufacturing rules, with `Don't:` counter-examples
+- [CIRCUIT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/CIRCUIT_RULES.md): part, value and wiring rules, each with its source and `Don't:` counter-examples
 - [tscircuit datasheets](https://tscircuit.com/datasheets)
 - [jlcsearch](https://jlcsearch.tscircuit.com/)
 - AI skill: [tscircuit/skill](https://github.com/tscircuit/skill), installed in `.claude/skills/tscircuit/`
