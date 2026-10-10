@@ -1,12 +1,12 @@
 # Circuit rules
 
-Generic electronics rules for choosing parts and values in any tscircuit board (`*.circuit.tsx`). `DESIGN.md` says where parts go (alignment, routing, placement, schematic layout); this file says which parts and values to use and how to wire them. The datasheet of the actual part beats both files. Rule IDs carry a section prefix (G, C, R, Q, P, ESP, AVR, STM, RP, UART, PR, LED, FUSE, ISO, RLY, XTAL, LOGIC, OPTO, RF, IR) so they never collide with the numbers of `DESIGN.md`; cite them as "CIRCUIT_RULES C3".
+Generic electronics rules for choosing parts and values in any tscircuit board (`*.circuit.tsx`). `LAYOUT_RULES.md` says where parts and copper go (alignment, routing, placement, schematic layout, and the layout of specific part families); this file says which parts and values to use and how to wire them. A rule belongs here when it can be checked from the netlist and the BOM alone; a rule that needs coordinates, copper, layers or silkscreen is in `LAYOUT_RULES.md`, and this file only points to it. The datasheet of the actual part beats both files. Rule IDs carry a section prefix (G, C, R, Q, P, ESP, AVR, STM, RP, UART, PR, LED, FUSE, ISO, RLY, XTAL, LOGIC, OPTO, RF, IR) so they never collide with the numbers of `LAYOUT_RULES.md`; cite them as "CIRCUIT_RULES C3". An ID missing from its sequence (C7, P4, ESP-10, ...) moved to `LAYOUT_RULES.md` and is not reused.
 
 Every rule carries a source tag `[S#]` (list at the end), read on 2026-10-06 and re-checked the same day against the primary documents (vendor datasheets, application notes, standards); a source still marked "(summary)" could not be opened and its figures are unverified. Where the sources disagree, the vendor document wins and the disagreement is noted. A rule with no tag is a project convention; "(convention)" marks a number that is common practice but not in any source read. Numbers marked "per datasheet" are not given here on purpose: use the value in the datasheet of the part you choose. For tscircuit: record the chosen part in `supplierPartNumbers`, put the calculation in the README Design notes, and use only JLCPCB Economic parts (see `CLAUDE.md`).
 
 ## General
 
-- **G1. Write the spec and a block diagram first:** list inputs and outputs, voltage, current, power, temperature and frequency range, board size and budget, then draw the blocks; the blocks become the schematic sections (`DESIGN.md` 19). [S1]
+- **G1. Write the spec and a block diagram first:** list inputs and outputs, voltage, current, power, temperature and frequency range, board size and budget, then draw the blocks; the blocks become the schematic sections (`LAYOUT_RULES.md` 19). [S1]
 - **G2. Start from the datasheet reference circuit** and its calculations; read the datasheet fully before choosing a part. [S1]
 - **G3. Derate 1.5-2x:** choose parts rated 1.5-2x above the real voltage, current and power (a resistor dissipates at most 50 % of its rating: a blog heuristic, not a datasheet rule); keep a power dissipation list per part. [S1]
 - **G4. Use standard values and long-lived parts:** standard resistor/capacitor values are cheaper; avoid parts with long lead times; prefer parts available for 5-7 years. [S1]
@@ -30,13 +30,14 @@ Every rule carries a source tag `[S#]` (list at the end), read on 2026-10-06 and
 | Memory backup | Supercap | 1.5-5 V max [S4] |
 
 - **C1. Use three tiers:** bulk 10-47 uF near the power input or regulator output; 100 nF for each IC power pin (10 nF additionally on high-speed parts); 1 uF beside the 100 nF on mixed-signal rails. [S2]
-- **C2. One decoupling cap per power pin**, within a few millimetres, on the same side as the IC (a via adds 1-2 nH), with short direct traces and its own ground via; the 3 mm rule of `DESIGN.md` 24 applies. Exception: the datasheet says pins share an internal plane. [S2]
+- **C2. One decoupling cap per power pin** (placement: `LAYOUT_RULES.md` 24). Exception: the datasheet says pins share an internal plane. [S2]
 - **C3. Derate the capacitance of Class 2 ceramics for DC bias:** a 10 uF/10 V X7R may give about 4 uF at 5 V, and ceramics can lose 60-80 % near rated voltage (TI TPS7A25 datasheet: expect a decrease by as much as 50 %); use a 16/25/50 V rating on a 3.3/5 V rail, or buy more capacitance (22 uF to get 10 uF). C0G has no bias loss. [S2, S3, S18]
 - **C4. Derate tantalum voltage:** MnO2 tantalum runs at 50-60 % of its rated voltage (Vishay: 3.3 V rail on a 6.3 V part, 5 V on 10 V, 12 V on 25 V); polymer tantalum at 80-90 % (10 % derating up to 10 V, 20 % above). Vishay's tables assume about 1 ohm of series resistance per volt: on low-impedance or hot-plug rails add series resistance, or use polymer or ceramic. [S6, S4]
-- **C5. Check every polarized cap for orientation and mark it** on the silkscreen (`DESIGN.md` 42). Reverse polarity makes electrolytics burst and tantalums burn. [S4]
+- **C5. Check every polarized cap for orientation** (silkscreen mark: `LAYOUT_RULES.md` 42). Reverse polarity makes electrolytics burst and tantalums burn. [S4]
 - **C6. Regulator capacitors follow the regulator datasheet:** minimum capacitance and an ESR window (examples: TPS76050 2.2 uF with ESR 0.1-20 ohm; NCP1117 4.7 uF with ESR 0.033 (typical)-2.2 ohm); a ceramic with 5-10 mOhm ESR can break such an LDO (LP2951: add 0.1-2 ohm in series), while newer LDOs (e.g. TPS7A25) are made for ceramics. Re-check the value after DC-bias derating. [S18]
-- **C7. Mount MLCCs parallel to the nearest board edge** (flex cracking when the board is cut, worst for 0805 and larger). [S3]
 - **C8. MLCCs age:** about 2.5 % (X7R) and about 3-6 % (X5R) per decade of hours (Wuerth SN011); MLCCs are microphonic (avoid in sensitive audio paths). [S40, S4]
+
+Layout: `LAYOUT_RULES.md` 24 (decoupling at the pin), 42 (polarity mark), 45 (MLCC orientation at a board edge).
 
 ## Resistors
 
@@ -53,9 +54,9 @@ Every rule carries a source tag `[S#]` (list at the end), read on 2026-10-06 and
 - **R2. Pick tolerance and TCR by function:** 1 % as default; tighter for dividers and references; +/-100 ppm/C drifts 1 % over 100 C. [S8]
 - **R3. LED series resistor:** `R = (Vsupply - Vf) / I`, round up to the next standard value (less current, same look); check `P = I^2 * R`. See LED section. [S1, S30]
 - **R4. Pull-ups:** I2C bus: `Rp(min) = (VDD(max) - VOL) / IOL` (VOL 0.4 V at 3 mA; for VDD at or below 2 V, 0.2 VDD at 2 mA) and `Rp(max) = tr / (0.8473 * Cb)`, with tr 1000 ns (100 kHz) or 300 ns (400 kHz) and Cb at most 400 pF. 4.7 kOhm suits 100 kHz up to about 250 pF; at 400 kHz it allows only about 75 pF and 2.2 kOhm about 160 pF. Check whether the modules on the bus already carry pull-ups. DHT22 data: about 5 kOhm (datasheet) to 10 kOhm to 3V3; 1-Wire (DS18B20): 4.7 kOhm to 3V3 (secondary). [S9, S24]
-- **R5. Gate drive:** 1 kOhm typical in series with a MOSFET gate, close to the MOSFET (lower, e.g. 100-470 ohm, for fast switching, within the MCU pin current), and 100 kOhm gate pull-down on the MCU side of the series resistor, so the load is off while the MCU pin floats. [S10]
+- **R5. Gate drive:** 1 kOhm typical in series with a MOSFET gate (lower, e.g. 100-470 ohm, for fast switching, within the MCU pin current), and 100 kOhm gate pull-down on the MCU side of the series resistor, so the load is off while the MCU pin floats (placement: `LAYOUT_RULES.md` 44). [S10]
 - **R6. Strapping and boot pins:** 1-10 kOhm in series when a peripheral shares a strapping pin. [S22]
-- **R7. USB-C sink:** 5.1 kOhm from each CC pin to GND, one per CC pin near the connector. The Type-C spec allows +/-20 % but a +/-10 % (use 1 %) resistor is needed to detect 1.5 A/3 A current advertisement. [S38]
+- **R7. USB-C sink:** 5.1 kOhm from each CC pin to GND, one per CC pin (placement: `LAYOUT_RULES.md` 44). The Type-C spec allows +/-20 % but a +/-10 % (use 1 %) resistor is needed to detect 1.5 A/3 A current advertisement. [S38]
 - **R8. Pick resistors from the JLCPCB basic list** (`jlcsearch` query in `CLAUDE.md`).
 
 ## Transistors
@@ -70,20 +71,19 @@ Every rule carries a source tag `[S#]` (list at the end), read on 2026-10-06 and
 - **Q1. Why a transistor:** a GPIO cannot drive coils, motors, strips or IR LEDs; the GPIO controls a small current and the transistor switches the big one from its own supply. [S14]
 - **Q2. Low side: N-MOSFET (or NPN):** load between supply and drain, source to GND. Check Rds(on) at your gate voltage (3.3 V needs a careful datasheet look; a 5 V drive is easier; the DigiKey article warns that its 1 kOhm/DMN67D8L design is not viable at 3.3 V logic), and keep Rds(on) far below the load resistance (relay example: 1.8 ohm against a 720 ohm coil). [S10, S13]
 - **Q3. BJT as a switch:** design for forced beta 10: `Ib = Ic / 10`, `Rb = (Vdrive - 0.7 V) / Ib`; Vce(sat) is quoted at 10:1 for e.g. BC817 and MMBT3904, but some families quote 20:1, so check the ratio in the datasheet. [S14]
-- **Q4. Inductive loads (relay, solenoid, motor) need a flyback diode** across the load, cathode to the supply side, anode to the transistor; mount it at the coil. A 1N4148 fits a small coil (~17 mA), a 1N4001-class diode larger ones; reverse rating at least 10x the circuit voltage (2-3x acceptable at low voltage), forward current at least the coil current. Any diode across a relay coil slows the release; where release time matters add a series zener (Panasonic). Low-side switch ICs integrate this diode for motors, solenoids and relays. [S10, S11, S33]
+- **Q4. Inductive loads (relay, solenoid, motor) need a flyback diode** across the load, cathode to the supply side, anode to the transistor (placement at the coil: `LAYOUT_RULES.md` 44). A 1N4148 fits a small coil (~17 mA), a 1N4001-class diode larger ones; reverse rating at least 10x the circuit voltage (2-3x acceptable at low voltage), forward current at least the coil current. Any diode across a relay coil slows the release; where release time matters add a series zener (Panasonic). Low-side switch ICs integrate this diode for motors, solenoids and relays. [S10, S11, S33]
 - **Q5. High side or reverse-polarity protection: P-MOSFET in the positive line**, body diode pointing so a reversed supply is blocked, gate to GND through a 1 kOhm resistor; for supplies above about 15-20 V (the source gives "below about 20 V" for the basic circuit) add a zener (cathode on the gate, anode to GND) to hold Vgs inside its limit. Choose Rds(on) < 0.1 ohm up to 5 A. Drop: MOSFET 0.05-0.15 V against 0.6-0.8 V for a series diode (diode: 0.35 W at 500 mA/12 V, MOSFET 0.025 W). [S12]
-- **Q6. Heat:** a MOSFET dissipates `I^2 * Rds(on)`; give it copper (`DESIGN.md` 27). [S13]
+- **Q6. Heat:** a MOSFET dissipates `I^2 * Rds(on)`; give it copper (`LAYOUT_RULES.md` 27). [S13]
 
 ## Power regulators
 
 - **P1. LDO or switcher by dissipation:** an LDO burns `(Vin - Vout) * Iout` (5 V to 3.3 V at 300 mA: 0.51 W, 66 %; 12 V to 3.3 V at 1 A: 8.7 W, 27.5 %); use the maximum Vin. Starting points only, verify thermally: below about 0.5 W the thermal copper is usually enough, above 1 W test the assembly; if the loss is unacceptable or the step is above 2:1, consider a buck (about 90 %). [S15]
 - **P2. Dropout and noise:** check the guaranteed (not typical) dropout at your current and temperature; check noise and PSRR in the bands you care about; the quiescent current matters most at light load (batteries). [S15]
 - **P3. Buck plus LDO** for a noisy-sensitive rail: check headroom, rejection at the switching frequency, heat and start-up. [S15]
-- **P4. LDO layout:** input cap directly across Vin and GND (short, low impedance); follow the manufacturer's layout and exposed-pad via instructions; take the sense line of an adjustable LDO from the intended measuring point, away from noisy copper (convention). [S15]
-- **P5. Buck layout:** the hot loop is input cap + switching FETs: put a ceramic input cap across Vin and PGND with the shortest path, on the same side as the IC; a 0.1-0.47 uF X5R/X7R bypass within about 2 cm of the input cap if needed; keep switch-node copper small (no wider than the inductor pads); put the output cap on the inductor's Vout side, away from the input cap; route feedback on the reverse side, never under or beside the inductor or switch pour; use a via array under the thermal pad; follow the datasheet layout for the ground connection (TI SLYT614: single point at the exposed pad). [S15, S16]
 - **P6. Buck inductor:** check peak and RMS current at temperature (saturation current, DCR), not only the inductance; the output cap must meet the datasheet capacitance and ESR after tolerance, temperature, aging and DC bias. [S15]
-- **P7. Boost layout:** the output cap is the most important: close to the IC with short wide traces, several small caps in parallel (SLVA773: three 0805); input-cap ground at the IC power ground; the inductor close to the IC (the input cap's distance to the inductor is not critical, its current is continuous); small switch node; signal ground joined to power ground at a single point close to the PGND pin. [S17]
-- **P8. Power path order:** connector, fuse/protection, bulk cap, regulator, loads (`DESIGN.md` 41). See Protection and Fuses.
+- **P8. Power path order:** connector, fuse/protection, bulk cap, regulator, loads (`LAYOUT_RULES.md` 41). See Protection and Fuses.
+
+Layout: `LAYOUT_RULES.md` 46 (LDO), 47 (buck), 48 (boost), 27 (heat).
 
 ## ESP32
 
@@ -92,13 +92,13 @@ Every rule carries a source tag `[S#]` (list at the end), read on 2026-10-06 and
 - **ESP-3. Strapping pins (original ESP32):** GPIO0, GPIO2, GPIO5, GPIO12 (MTDI), GPIO15 (MTDO); GPIO0 low at reset means download mode, GPIO12 high at reset selects 1.8 V VDD_SDIO, wrong for a 3.3 V flash; add a pull-up on GPIO0 and no big capacitor on it (a boot button needs a strong pull-down, the internal pull is about 45 kOhm); do not hold strapping pins at the wrong level with loads or pull-ups. (One tutorial lists GPIO4; Espressif does not.) C3: GPIO2, 8, 9; S3: GPIO0, 3, 45, 46. [S19, S21, S22, S23]
 - **ESP-4. Unusable and special pins:** GPIO6-11 (flash) and GPIO16 with in-package flash/PSRAM (needs a 10 kOhm pull-up there); GPIO34-39 are input-only and have no internal pull-up or pull-down (add external resistors); ADC2 cannot be used while Wi-Fi is on, use ADC1 (GPIO32-39) and 0.1 uF per ADC pin. [S19, S21]
 - **ESP-5. GPIO limits:** 3.3 V logic only (inputs are not 5 V tolerant, VIH max VDD + 0.3 V; divide 5 V signals, e.g. 1 kOhm/2 kOhm); a pin sources about 20 mA at the default drive strength and about 40 mA typical at the maximum setting (falling to about 29 mA as more pins source), sinks about 28 mA; the datasheet absolute maximum is 1200 mA cumulative, so do not rely on 40 mA: anything bigger than a few mA (relay coil 70-100 mA, buzzer, motor, servo, LED strip) gets a driver transistor and its own supply with a common ground. [S19, S21, S24]
-- **ESP-6. Loads on their own supply:** motors, servos, relays and LED strips from a separate 5 V supply of 1-2 A (a servo start can exceed 1 A), all grounds joined, a bulk cap (500-1000 uF for addressable strips) at the load connector; a USB 2.0 port guarantees only 500 mA (100 mA until enumeration). [S24]
-- **ESP-7. Serial lines:** 499 ohm in series on UART TX to damp harmonics; a series resistor, or a ferrite bead with a capacitor to ground, on the SPI clock; place them at the chip pins. [S19]
+- **ESP-6. Loads on their own supply:** motors, servos, relays and LED strips from a separate 5 V supply of 1-2 A (a servo start can exceed 1 A), all grounds joined, a bulk cap (500-1000 uF for addressable strips) for the load (placement: `LAYOUT_RULES.md` 44); a USB 2.0 port guarantees only 500 mA (100 mA until enumeration). [S24]
+- **ESP-7. Serial lines:** 499 ohm in series on UART TX to damp harmonics; a series resistor, or a ferrite bead with a capacitor to ground, on the SPI clock (placement: `LAYOUT_RULES.md` 44). [S19]
 - **ESP-8. Auto-download circuit:** DTR and RTS of the USB-UART bridge drive EN and GPIO0 through two transistors, so asserting both together does not reset the chip; copy an Espressif DevKit schematic and keep the 1-10 uF on EN. [S23]
 - **ESP-9. Bare chip clock:** 40 MHz crystal, +/-10 ppm, load caps by the crystal's CL, more than 500 mV amplitude; optional 32.768 kHz crystal with ESR at most 70 kOhm; the checklist also wants a series 0 ohm/inductor position on XTAL_P and 5-10 MOhm across the 32 kHz crystal. [S19]
-- **ESP-10. Antenna (module or chip):** antenna outside the base board with its feed point near the edge, 15 mm clear in all directions in the housing, no copper or parts under or around the antenna area itself, base board cut away on both sides and below the antenna; USB and UART lines far from the antenna. [S20]
-- **ESP-11. Chip layout (bare chip):** 4-layer: layer 2 is a full GND plane; 2-layer: a continuous reference ground under chip, RF and crystal; thermal pad to GND with at least 9 vias; main power traces at least 25 mil, VDD3P3 at least 20 mil, others 12-15 mil, surrounded by ground copper; crystal at least 2.7 mm from the clock pin, no vias on the clock traces; RF trace 50 ohm (matching-capacitor stub 100 ohm +/-10 %), outer layer only, no layer change, 135 degree bends or arcs. [S20]
 - **ESP-12. Pick the right variant:** C3, S3 and others differ in pins and strapping; read the guide and datasheet of the exact chip. [S19, S22]
+
+Layout: `LAYOUT_RULES.md` 54 (antenna keep-out), 55 (bare-chip layout), 49 (crystal), 51 (RF trace).
 
 ## ATmega328P
 
@@ -106,16 +106,17 @@ Every rule carries a source tag `[S#]` (list at the end), read on 2026-10-06 and
 - **AVR-2. AVCC must be connected to VCC** even if the ADC is unused, and must stay within +/-0.3 V of VCC; with the ADC, feed AVCC through a low-pass filter: 10 uH from VCC and 100 nF to GND (datasheet figure 24-9). [S25]
 - **AVR-3. AREF:** 100 nF to GND with the internal or AVCC reference; a fixed voltage on AREF shorts the internal references, so tie it to a voltage only when the firmware selects the external AREF reference. [S25]
 - **AVR-4. RESET:** 10 kOhm pull-up to VCC (debugWIRE: not smaller than 10 kOhm; STK600: 4.7 kOhm or larger); no extra capacitor on RESET when debugWIRE is used; AVR042 recommends ESD/zener protection on RESET; auto-reset from DTR uses 0.1 uF in series with the pull-up forming the pulse (Arduino practice, convention). [S25]
-- **AVR-5. Clock:** crystal across XTAL1/XTAL2 with two equal load caps, 12-22 pF as a starting point (datasheet Table 9-3), then from the crystal's CL (XTAL-1), as close to the pins as possible. [S25, S28]
+- **AVR-5. Clock:** crystal across XTAL1/XTAL2 with two equal load caps, 12-22 pF as a starting point (datasheet Table 9-3), then from the crystal's CL (XTAL-1; placement: `LAYOUT_RULES.md` 49). [S25, S28]
 - **AVR-6. Supply and speed:** 1.8-5.5 V; 4 MHz at 1.8 V, 10 MHz at 2.7 V, 20 MHz needs 4.5-5.5 V (the limit is linear between the points); absolute maximum 6.0 V; any pin except RESET is limited to VCC + 0.5 V (not 5 V tolerant on a 3.3 V board), RESET to 13 V; 40 mA per I/O pin. [S25]
-- **AVR-7. Precision ADC:** keep analog and digital ground apart and join them at one point only when the part has a separate AGND (the ATmega328P has none: use the analog ground plane of figure 24-9). [S25]
 - **AVR-8. Programming header:** put an ISP header (MISO, MOSI, SCK, RESET, VCC, GND) on the board.
+
+Layout: `LAYOUT_RULES.md` 57 (analog ground of a precision ADC), 49 (crystal).
 
 ## STM32
 
 Read the series' own hardware note before drawing (numbers differ per series): AN4488 (F4), AN4080 (F0), the G0 note (dm00443870), AN4555 (L4), AN5373 (U5), AN4938 (H7), AN5673 (C0), AN2867 (oscillators), AN4879 (USB). The values below come from AN4488 (F4) and AN4938 (H7), read in full; check them for your series. [S26]
 
-- **STM-1. Decoupling:** every VDD/VSS pair gets a 100 nF ceramic at the pin, plus one 4.7-10 uF cap per package (4.7 uF minimum), as close to the pins as possible or on the underside; connect all supply and ground pins with low impedance. [S26]
+- **STM-1. Decoupling:** every VDD/VSS pair gets a 100 nF ceramic at the pin, plus one 4.7-10 uF cap per package (4.7 uF minimum) (placement: `LAYOUT_RULES.md` 24); connect all supply and ground pins with low impedance. [S26]
 - **STM-2. VDDA:** may come from VDD through a ferrite bead, with 100 nF + 1 uF to GND at the pin. [S26]
 - **STM-3. VREF+:** with a separate reference voltage, 100 nF + 1 uF on the pin. F4: between VDDA - 1.2 V and VDDA, at least 1.7 V. H7: below VDDA, at least 2 V when VDDA is above 2 V and the ADC is used (else 1.62 V). Otherwise tie it to VDDA (a resistor of about 47 ohm is possible on H7). [S26]
 - **STM-4. VBAT:** connect a battery (F4 1.65-3.6 V, H7 1.2-3.6 V) or tie it to VDD through 100 nF; the pin must be connected to a supply when no battery is used. [S26]
@@ -129,9 +130,9 @@ Read the series' own hardware note before drawing (numbers differ per series): A
 ## RP2040
 
 - **RP-1. Decoupling:** 100 nF at each IOVDD pin, each DVDD pin, USB_VDD and ADC_AVDD; 1 uF on VREG_VIN and on VREG_VOUT (the 1.1 V that feeds the DVDD pins). The Pico minimal design shares one 100 nF cap between pins 48 and 49 as a stated compromise. [S27]
-- **RP-2. Clock:** crystal of 1-15 MHz (the USB bootloader requires 12 MHz); load caps from the datasheet equation (`CL = C2*C3/(C2+C3) + about 3 pF`), very close to the crystal; a 1 kOhm damping resistor in series on the XOUT side (tuned for 3.3 V IOVDD) so the crystal is not overdriven; keep the layout short. [S27]
-- **RP-3. USB:** 27 ohm series resistors on D+ and D-, close to the chip; 90 ohm differential target. [S27]
-- **RP-4. Flash:** QSPI traces short, the flash next to the chip (the guide gives no length number); a 1 kOhm resistor between QSPI_SS and the USB_BOOT button/header, close to the flash, so the button can overdrive the pull-down; QSPI_SS low at reset enters the USB bootloader. [S27]
+- **RP-2. Clock:** crystal of 1-15 MHz (the USB bootloader requires 12 MHz); load caps from the datasheet equation (`CL = C2*C3/(C2+C3) + about 3 pF`); a 1 kOhm damping resistor in series on the XOUT side (tuned for 3.3 V IOVDD) so the crystal is not overdriven (placement: `LAYOUT_RULES.md` 49). [S27]
+- **RP-3. USB:** 27 ohm series resistors on D+ and D- (placement: `LAYOUT_RULES.md` 44; pair routing: 50). [S27]
+- **RP-4. Flash:** a 1 kOhm resistor between QSPI_SS and the USB_BOOT button/header, so the button can overdrive the pull-down; QSPI_SS low at reset enters the USB bootloader (placement: `LAYOUT_RULES.md` 44 and 56). [S27]
 - **RP-5. RUN pin** is the reset input (low resets); VREG_VIN must be powered even when the on-chip regulator is unused (it feeds power-on reset and brown-out); in the reference design the 3.3 V comes from a regulator off the 5 V USB rail. [S27]
 
 ## USB-UART bridges
@@ -149,7 +150,7 @@ Read the series' own hardware note before drawing (numbers differ per series): A
 - **PR-2. Reverse polarity:** a series diode (low power) or a P-MOSFET (Q5). [S1, S12]
 - **PR-3. Overvoltage:** varistor, TVS diodes or diode clamps, used together with a fuse chip or a thermistor. [S1]
 - **PR-4. Mains-side parts:** X capacitors (line to neutral) and Y capacitors (supply to ground) are safety-rated; galvanic isolation (ISO) for different ground potentials and high voltage. [S1]
-- **PR-5. USB data lines:** low-capacitance bidirectional TVS (about 1 pF per line, typical) as close as possible to the connector; D+/D- as a differential pair, parallel, equal length, 90 ohm differential impedance (USB 2.0 spec, secondary), on a continuous ground plane, with few vias; series resistors are device-dependent (27 ohm on RP2040, see the PHY datasheet). [S27, S38]
+- **PR-5. USB data lines:** low-capacitance bidirectional TVS (about 1 pF per line, typical); series resistors are device-dependent (27 ohm on RP2040, see the PHY datasheet) (placement: `LAYOUT_RULES.md` 44; pair routing: 50). [S27, S38]
 
 ## LEDs
 
@@ -157,8 +158,9 @@ Read the series' own hardware note before drawing (numbers differ per series): A
 - **LED-2. Vf by colour (indicator LEDs):** check the LED's datasheet; typical red/yellow about 1.8-2.4 V, InGaN green, blue and white about 2.8-3.6 V (traditional green is nearer 2.0-2.4 V); on 3.3 V rails blue and white leave almost no headroom. [S30]
 - **LED-3. Current (convention):** 20 mA is the usual rating, indicator LEDs light at 1-5 mA with less brightness; power LEDs take 350 mA to over 1 A and need a constant-current driver, not a resistor (a resistor wastes power as heat and the output follows the supply voltage).
 - **LED-4. Dimming:** PWM; flicker is visible below about 200 Hz, 1 kHz is a typical default. [S30]
-- **LED-5. Addressable LEDs (WS2812B):** data input high level is 0.7 x VDD, so 3.3 V data is out of spec on a 5 V supply (3.5 V needed; at VDD 4.5 V the margin is only about 0.15 V); use a 74AHCT125/74HCT245 level shifter; the datasheet pulses are about 0.4/0.8 us within a 1.25 us bit (an I2C-type shifter is likely too slow); 300-500 ohm in series on DATA close to the first pixel and 500-1000 uF (6.3 V or higher) across the strip power. [S39, S24]
-- **LED-6. Mark polarity** on the silkscreen (`DESIGN.md` 42).
+- **LED-5. Addressable LEDs (WS2812B):** data input high level is 0.7 x VDD, so 3.3 V data is out of spec on a 5 V supply (3.5 V needed; at VDD 4.5 V the margin is only about 0.15 V); use a 74AHCT125/74HCT245 level shifter; the datasheet pulses are about 0.4/0.8 us within a 1.25 us bit (an I2C-type shifter is likely too slow); 300-500 ohm in series on DATA and 500-1000 uF (6.3 V or higher) across the strip power (placement: `LAYOUT_RULES.md` 44). [S39, S24]
+
+Layout: `LAYOUT_RULES.md` 42 (polarity mark).
 
 ## Fuses and overcurrent protection
 
@@ -166,7 +168,8 @@ Read the series' own hardware note before drawing (numbers differ per series): A
 - **FUSE-2. Size a one-time fuse:** load it to at most 75 % of its nominal rating at 25 C and derate for a hotter ambient; voltage rating at least the highest circuit voltage (right AC or DC rating); breaking capacity at least the maximum fault current. [S31]
 - **FUSE-3. PTC (resettable):** hold current is the maximum without tripping; trip current is typically 1.7-2x the hold current (see the datasheet); hold current falls above 25 C and rises below, so use the manufacturer's re-rating curve; the voltage rating applies in the tripped state; max current is what it survives while tripped. [S31]
 - **FUSE-4. Alternatives:** electronic fuse chip, thermistor (S1); use a one-time fuse where a fault must stay off.
-- **FUSE-5. Trace width** at the fuse must carry the current (`DESIGN.md` 14).
+
+Layout: `LAYOUT_RULES.md` 14 (trace width at the fuse), 41 (power path).
 
 ## Signal isolation devices
 
@@ -182,31 +185,33 @@ Read the series' own hardware note before drawing (numbers differ per series): A
 
   Choose an optocoupler for SMPS feedback and relay drivers; a digital isolator above 5 Mbit/s, CMTI above 25 kV/us, tight power budget or many channels (distributor blog figures, not a vendor document). [S32]
 - **ISO-3. Creepage and clearance:** clearance is the shortest air path, creepage the shortest path along the surface; their values come from working voltage, pollution degree, material group (CTI) and insulation class in IEC 60664-1 (reinforced creepage is twice basic creepage, as in IEC 61010-1); read the table in the standard or the isolator datasheet, no number is quoted here. [S32]
-- **ISO-4. Layout:** keep the isolator pads from shrinking the creepage; slots or grooves in the board increase creepage; separate high-voltage and low-voltage circuits physically and electrically; round corners on high-voltage traces; conformal coating may allow shorter distances (IEC 60664-3, not read). [S32, S33]
 - **ISO-5. Isolated side needs its own supply** (isolated DC-DC or transformer) and its own ground. [S32]
 - **ISO-6. Electrical safety stays the user's responsibility** (see `CLAUDE.md`). Mains-connected work needs certified parts and testing beyond this file. A 5 kV rating of an optocoupler such as the PC817 is a UL1577 test voltage, not a working voltage: for mains isolation use a part with an IEC 60747-17 working-voltage rating (VIORM) and keep the creepage and clearance of its datasheet. [S32]
+
+Layout: `LAYOUT_RULES.md` 58 (isolation barrier on the board).
 
 ## Relays
 
 - **RLY-1. Drive:** low-side N-MOSFET (or NPN), gate resistor and 100 kOhm gate pull-down, flyback diode at the coil (Q2, Q4, R5); a 12 V coil of 200 mW draws about 17 mA (720 ohm), coil time constant L/R about 3 ms. [S10]
 - **RLY-2. Contact load:** select by load type: lamps have 10-15x inrush, motors 5-10x, capacitors 20-50x (Omron FAQ, snippet only; Panasonic says verify in the real circuit); arcing on inductive loads shortens contact life, so use the datasheet rating for that load type and a snubber where the datasheet advises it; check the DC rating for DC loads (far below the AC rating; automotive relays cannot switch AC). [S33]
 - **RLY-3. Relay or SSR:** a mechanical contact drops `I * contact resistance` (datasheet); a triac/SCR SSR about 1-2 V and needs heat dissipation; a MOSFET SSR drops `I * Rds(on)`; SSRs derate hard at high ambient. [S33]
-- **RLY-4. Layout:** put the flyback diode at the coil; keep high-voltage contact traces and low-voltage coil/logic apart with the creepage of ISO-3. [S33]
+
+Layout: `LAYOUT_RULES.md` 59 (contact traces), 44 (flyback diode at the coil).
 
 ## Crystals and oscillators
 
 - **XTAL-1. Load capacitors:** `CL = C1 * C2 / (C1 + C2) + Cstray`; for C1 = C2, `C = 2 * (CL - Cstray)` (CL 18 pF and Cstray 3 pF give 30 pF). Cstray includes the pin and PCB capacitance: typically 2-5 pF for the PCB alone, 5-10 pF per pin including the pin (AVR042); take the MCU vendor's value. Use C0G/NP0 caps; take CL from the crystal datasheet and check the MCU's load requirement. [S28]
 - **XTAL-2. Accuracy:** USB full speed needs +/-0.25 % (2500 ppm); ESP32 40 MHz +/-10 ppm. [S29, S19]
-- **XTAL-3. Layout:** crystal as close to the MCU as practical (`DESIGN.md` 25 says within 5 mm; on the ESP32 at least 2.7 mm from the clock pin); load caps close, the XTALIN cap first and nearest; short traces, few vias (none on the ESP32 clock traces); no other signals under or beside the crystal; ground plane under the crystal for multilayer boards. [S28, S20]
-- **XTAL-4. Disagreement:** Microchip AVR042 and Espressif recommend a ground plane around or under the crystal; one third-party RP2040 article says to exclude the copper pour, the RP2040 vendor guide gives no pour rule. Follow the guide of your MCU. [S27, S28, S20]
 - **XTAL-5. Check ESR and drive level** of the crystal against the MCU datasheet (a 32.768 kHz crystal's maximum drive level is typically 0.5-1 uW; its frequency depends strongly on the load capacitance, about +/-15 ppm/pF pullability per AVR042). [S28]
+
+Layout: `LAYOUT_RULES.md` 25 and 49.
 
 ## Logic ICs
 
 - **LOGIC-1. Families:** 74HC 2-6 V, about +/-4 mA at 4.5 V, inputs not 5 V tolerant; 74AHC 2-5.5 V, +/-8 mA, 5 V-tolerant inputs; 74LVC 1.2-3.6 V (TI guarantees 1.65-3.6 V), +/-24 mA at 3 V, 5 V-tolerant inputs (usable as 5 V to 3.3 V translators). [S34]
 - **LOGIC-2. Never leave an input floating:** tie it directly to VCC or GND, or through 1-10 kOhm if it may need to change. [S34]
 - **LOGIC-3. Schmitt-trigger inputs** (74xx14) tolerate slow edges (buttons, RC filters). [S34]
-- **LOGIC-4. Decouple each package:** 0.1 uF at each VCC pin, as short as possible; optionally 1 uF in parallel. [S34]
+- **LOGIC-4. Decouple each package:** 0.1 uF at each VCC pin (placement: `LAYOUT_RULES.md` 24); optionally 1 uF in parallel. [S34]
 - **LOGIC-5. Level translation:** use a 5 V-tolerant LVC/AHC input where the 3.3 V high level is valid for the receiver, otherwise a translator; see LED-5 for a fast shifter. [S34]
 
 ## Optocouplers
@@ -218,31 +223,32 @@ Read the series' own hardware note before drawing (numbers differ per series): A
 
 ## RF
 
-- **RF-1. Use a certified module** where possible; for the antenna keep-out follow ESP-10 and the module datasheet. [S20]
-- **RF-2. 50 ohm +/-10 %:** microstrip over an unbroken ground plane or coplanar waveguide with ground vias on both sides; trace width from the stackup, not by guess; outer layer, no layer changes, 135 degree bends or arcs. [S20, S36]
-- **RF-3. Via fence:** CPW ground vias at lambda/20 or less; ground vias around RF cavities at less than lambda/10 (S36 summary only, unverified); at 2.4 GHz on FR4 (eps_eff about 3.3) lambda is about 69 mm, so lambda/20 is about 3.4 mm. [S36]
-- **RF-4. Place parts for the shortest RF path;** no parallel RF traces; keep USB, UART and clocks away from the antenna; a matching network (CLC/pi) near the chip. [S20, S36]
+- **RF-1. Use a certified module** where possible and follow its datasheet; a bare-chip design needs a matching network (CLC/pi). [S20, S36]
+
+Layout: `LAYOUT_RULES.md` 51 (RF trace), 52 (via fence), 53 (placement), 54 (antenna keep-out).
 
 ## IR
 
 - **IR-1. IR LED driver:** a transistor or MOSFET switches the LED; the carrier is 38 kHz for common remotes. [S37]
 - **IR-2. IR LED limits:** example TSAL6200 (940 nm): IF 100 mA continuous, IFM 200 mA (tp/T 0.5, tp 100 us), IFSM 1.5 A (100 us), Vf about 1.35 V (1.6 V max at 100 mA); its pulse curve allows about 6-7x the continuous current at 10 % duty (tp 100 us); other LEDs differ, check the datasheet. Resistor: `R = (Vs - Vf - Vds) / I`. [S37]
 - **IR-3. IR receiver module** (TSOP38238/TSOP4838): 2.0-5.5 V supply in the current Vishay datasheets (older revisions 2.5-2.7 V); the datasheet recommends an optional supply filter R1/C1 against ripple and spikes (older TSOP4838 revision: R1 about 100 ohm, C1 about 0.1 uF; older TSOP382: R1 33 ohm-1 kOhm, C1 above 0.1 uF); the output is active low; a continuous carrier is muted by the AGC, so the protocol needs a pause after each burst (about 5x the burst length for short bursts, 15x for long ones). [S37]
-- **IR-4. Mount** the receiver where the window and viewing angle fit the case, away from switching noise (convention).
+
+Layout: `LAYOUT_RULES.md` 60 (receiver mounting).
 
 ## Review (after choosing parts and values)
 
 - Spec and block diagram exist; derated 1.5-2x; standard values (G1, G3, G4).
-- Every IC pin decoupled at the pin; DC-bias derating checked; regulator caps match the datasheet (C1, C2, C3, C6).
+- Every IC power pin has its decoupling cap; DC-bias derating checked; regulator caps match the datasheet (C1, C2, C3, C6).
 - Every floating input fixed; pull-up values calculated (G6, R4); gate pull-down and flyback diode present (R5, Q4).
 - Power path protected: fuse, reverse polarity, overvoltage (FUSE-1, PR-1..3, Q5).
 - MCU: reset, boot and strapping pins, clock, analog supply and programming header done for the family (ESP, AVR, STM, RP sections).
-- Isolation barrier, creepage and clearance checked against the standard (ISO-3, ISO-4, ISO-6).
-- Polarity of every polarized part marked (C5, LED-6, `DESIGN.md` 42).
+- Isolation barrier, creepage and clearance checked against the standard (ISO-3, ISO-6; on the board: `LAYOUT_RULES.md` 58).
+- Orientation of every polarized part checked (C5; silkscreen mark: `LAYOUT_RULES.md` 42).
+- Layout rules of every part family on the board noted for the layout step (`LAYOUT_RULES.md` 44-60).
 
 ## Sources
 
-Read 2026-10-06. Entries marked (summary) could not be opened here (blocked, 403/404 or unreadable PDF); the figures were taken from a search-result summary and are unverified. Where a primary document was read in full, it is named in the entry. The st.com PDFs refused download; web.archive.org copies of the same PDFs were read.
+Read 2026-10-06. Entries marked (summary) could not be opened here (blocked, 403/404 or unreadable PDF); the figures were taken from a search-result summary and are unverified. Where a primary document was read in full, it is named in the entry. The st.com PDFs refused download; web.archive.org copies of the same PDFs were read. The tagged rules of `LAYOUT_RULES.md` (24 and 44-60) cite this list too, so keep the numbers stable.
 
 - S1 Proto Express, best electronic circuit design practices: https://www.protoexpress.com/blog/best-electronic-circuit-design-practices/
 - S2 JLCPCB, decoupling capacitors guide: https://jlcpcb.com/blog/decoupling-capacitors-guide

@@ -14,6 +14,17 @@ PCB design written in [tscircuit](https://tscircuit.com) (React/TSX, compiled by
 
 Template: placeholder example only, no real design yet.
 
+## Project map
+
+What Claude needs to know before touching this project. `CLAUDE.md` is the shared template, identical in every project; everything specific to this project is in this README.
+
+- **Boards:** `index.circuit.tsx` (the `mainEntrypoint`), currently the template placeholder.
+- **Scripts:** the plain names (`check:fast`, `check:wiring`, `check:full`, `export:images`, `export:gerbers`); no project-specific script.
+- **README images:** `__snapshots__/index.circuit-schematic.snap.svg`, `docs/images/pcb.png`, `docs/images/3d.png`.
+- **Tooling:** no formatter or linter.
+- **Rules:** `LAYOUT_RULES.md` and `CIRCUIT_RULES.md` apply to the whole board. No audit yet: add a "Layout rules audit" and a "Circuit rules audit" table once the board exists.
+- **Helpers and gotchas of this board:** none yet.
+
 ## Requirements
 
 Fill in everything marked `TODO` before designing. Delete a bullet only if it clearly does not apply.
@@ -29,7 +40,7 @@ Fill in everything marked `TODO` before designing. Delete a bullet only if it cl
 
 Calculations and the reasoning behind part values, footprints, grounding, trace widths, routing. Record why, not only what.
 
-Layout rules: see [DESIGN.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/DESIGN.md).
+Layout rules: see [LAYOUT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/LAYOUT_RULES.md); part, value and wiring rules: see [CIRCUIT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/CIRCUIT_RULES.md).
 
 ## Finding JLCPCB parts
 
@@ -59,7 +70,8 @@ Before sharing or fabricating, work through the checks in order: `tsci check net
 ## References
 
 - [tscircuit docs](https://docs.tscircuit.com/); the full docs are also available as one text file at https://docs.tscircuit.com/llms.txt
-- [DESIGN.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/DESIGN.md): PCB alignment, routing, mounting, schematic and placement rules
+- [LAYOUT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/LAYOUT_RULES.md): PCB alignment, routing, mounting, schematic, placement and part-specific layout rules
+- [CIRCUIT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/CIRCUIT_RULES.md): part, value and wiring rules, each with its source
 - [tscircuit datasheets](https://tscircuit.com/datasheets)
 - [jlcsearch](https://jlcsearch.tscircuit.com/)
 - AI skill: [tscircuit/skill](https://github.com/tscircuit/skill), installed in `.claude/skills/tscircuit/`
