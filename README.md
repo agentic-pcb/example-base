@@ -30,11 +30,11 @@ What Claude needs to know before touching this project. `CLAUDE.md` is the share
 Fill in everything marked `TODO` before designing. Delete a bullet only if it clearly does not apply.
 
 - **Purpose:** TODO (what the board does, in one or two sentences, with the key numbers: timing, current, frequency, ...)
-- **Board size / form factor:** TODO (outline in mm, single/double sided, which side parts go on)
+- **Board size / form factor:** TODO (outline in mm). Two copper layers, top and bottom: fixed by the template (`LAYOUT_RULES.md` 64), not 1 and not 4 or more; write here only if this project really needs another count. Parts on the top side unless stated here.
 - **Power sources and rails:** TODO (input voltage and connector, rails the design needs, current budget)
 - **I/O (connectors, headers, mounting holes):** TODO (connector type/pitch/pin labels, mounting hole count/size/position, buttons, LEDs, test points)
 - **Mechanical constraints:** TODO (enclosure, keep-outs, height limits, or "none")
-- **Manufacturer and constraints:** JLCPCB; all resistors/capacitors 0603; basic parts where one exists; Economic assembly (only parts marked "PCBA Type: Economic and Standard", never "Standard Only"). Change if this project differs.
+- **Manufacturer and constraints:** JLCPCB; 2-layer board; all resistors/capacitors 0603; basic parts where one exists; Economic assembly (only parts marked "PCBA Type: Economic and Standard", never "Standard Only"). Change if this project differs.
 
 ## Design notes
 
@@ -70,7 +70,7 @@ Before sharing or fabricating, work through the checks in order: `tsci check net
 ## References
 
 - [tscircuit docs](https://docs.tscircuit.com/); the full docs are also available as one text file at https://docs.tscircuit.com/llms.txt
-- [LAYOUT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/LAYOUT_RULES.md): PCB alignment, routing, mounting, schematic, placement, part-specific layout and manufacturing rules, with `Don't:` counter-examples
+- [LAYOUT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/LAYOUT_RULES.md): PCB alignment, routing, mounting, schematic, placement, part-specific layout, manufacturing and layer and via rules (every board is 2-layer), with `Don't:` counter-examples
 - [CIRCUIT_RULES.md](https://raw.githubusercontent.com/agentic-pcb/example-base/main/CIRCUIT_RULES.md): part, value and wiring rules, each with its source and `Don't:` counter-examples
 - [tscircuit datasheets](https://tscircuit.com/datasheets)
 - [jlcsearch](https://jlcsearch.tscircuit.com/)
