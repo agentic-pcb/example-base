@@ -313,4 +313,4 @@ Read 2026-10-06. Entries marked (summary) could not be opened here (blocked, 403
 - S53 Raspberry Pi Pico datasheet, powering Pico (read): https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf
 - S54 Pololu blog, More LEDs (read, secondary): https://www.pololu.com/blog/9
 - S55 WLED forum, Do NOT use BSS138 for logic level shifting (read, secondary): https://wled.discourse.group/t/do-not-use-bss138-for-logic-level-shifting-too-slow/6054
-- S56 JLCPCB, PCB manufacturing and assembly capabilities: layer count, controlled impedance, drilling (via hole and diameter, spacing), plugged vias and via-in-pad (read): https://jlcpcb.com/capabilities/pcb-capabilities
+- S56 JLCPCB, PCB manufacturing and assembly capabilities: layer count, controlled impedance, drilling (via hole and diameter, spacing, and which via sizes cost more), plugged vias and via-in-pad (read): https://jlcpcb.com/capabilities/pcb-capabilities

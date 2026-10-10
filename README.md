@@ -19,7 +19,7 @@ Template: placeholder example only, no real design yet.
 What Claude needs to know before touching this project. `CLAUDE.md` is the shared template, identical in every project; everything specific to this project is in this README.
 
 - **Boards:** `index.circuit.tsx` (the `mainEntrypoint`), currently the template placeholder.
-- **Scripts:** the plain names (`check:fast`, `check:wiring`, `check:full`, `export:images`, `export:gerbers`); no project-specific script.
+- **Scripts:** the plain names (`check:fast`, `check:wiring`, `check:vias`, `check:full`, `export:images`, `export:gerbers`); no project-specific script.
 - **README images:** `__snapshots__/index.circuit-schematic.snap.svg`, `docs/images/pcb.png`, `docs/images/3d.png`.
 - **Tooling:** no formatter or linter.
 - **Rules:** `LAYOUT_RULES.md` and `CIRCUIT_RULES.md` apply to the whole board. No audit yet: add a "Layout rules audit" and a "Circuit rules audit" table once the board exists.
@@ -34,7 +34,7 @@ Fill in everything marked `TODO` before designing. Delete a bullet only if it cl
 - **Power sources and rails:** TODO (input voltage and connector, rails the design needs, current budget)
 - **I/O (connectors, headers, mounting holes):** TODO (connector type/pitch/pin labels, mounting hole count/size/position, buttons, LEDs, test points)
 - **Mechanical constraints:** TODO (enclosure, keep-outs, height limits, or "none")
-- **Manufacturer and constraints:** JLCPCB; 2-layer board; all resistors/capacitors 0603; basic parts where one exists; Economic assembly (only parts marked "PCBA Type: Economic and Standard", never "Standard Only"). Change if this project differs.
+- **Manufacturer and constraints:** JLCPCB; 2-layer board; vias 0.6 mm pad / 0.3 mm hole (JLCPCB's no-extra-charge size, set by `pcbStyle` on the board); all resistors/capacitors 0603; basic parts where one exists; Economic assembly (only parts marked "PCBA Type: Economic and Standard", never "Standard Only"). Change if this project differs.
 
 ## Design notes
 

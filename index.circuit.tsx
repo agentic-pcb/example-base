@@ -1,7 +1,8 @@
 // Placeholder example: one resistor and one LED joined by a single trace. Replace with the real design (see README.md).
 // R1 is an example value: (5 V - 2 V) / 330 ohm = about 9 mA (CIRCUIT_RULES LED-1).
+// pcbStyle sets the size of every via (LAYOUT_RULES 66): the tscircuit default, 0.3 mm pad / 0.2 mm hole, costs extra at JLCPCB.
 export default () => (
-  <board width="20mm" height="10mm" thickness="1.6mm" layers={2} borderRadius={2}>
+  <board width="20mm" height="10mm" thickness="1.6mm" layers={2} borderRadius={2} pcbStyle={{ viaPadDiameter: 0.6, viaHoleDiameter: 0.3 }}>
 
     <schematicsheet name="Main" displayName="Example" sheetIndex={0} sheetWidth="70mm" sheetHeight="50mm" />
 
