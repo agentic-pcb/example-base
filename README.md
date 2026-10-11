@@ -10,6 +10,46 @@ PCB design written in [tscircuit](https://tscircuit.com) (React/TSX, compiled by
 
 > Template note: the circuit and images above are a placeholder (one resistor, one LED, one connection). Fill in **Requirements** below, then ask Claude to build the design from this README; see `CLAUDE.md`.
 
+## How it works
+
+Claude Code reads this README (the brief), writes and edits the board file (React/TSX), and runs the check ladder; it reads the errors and hints and iterates until the design is clean. The layout and circuit rules are read by URL from `agentic-pcb/example-base`, they are not copied into projects.
+
+```mermaid
+flowchart TD
+    you(["You: fill in Requirements in README.md"]) --> claude
+
+    claude["<b>Claude Code</b><br/>follows CLAUDE.md + tscircuit skill<br/>chooses parts, computes values"]
+    rules[("<b>LAYOUT_RULES.md</b><br/>CIRCUIT_RULES.md<br/>(read by URL from example-base)")]
+    parts[("<b>jlcsearch</b><br/>basic / Economic JLCPCB parts")]
+    board["<b>index.circuit.tsx</b><br/>tscircuit React/TSX board<br/>supplierPartNumbers = BOM"]
+    readme["<b>README.md</b><br/>status, decisions, rule audits"]
+
+    subgraph loop ["check ladder (each stage gates the next)"]
+        direction TB
+        wiring["<b>npm run check:wiring</b><br/>tsc, netlist, schematic-placement"]
+        place["<b>tsci check placement</b><br/>+ routing-difficulty"]
+        full["<b>npm run check:full</b><br/>tsci build, check:vias, check shorts"]
+        wiring --> place --> full
+    end
+
+    images[("schematic SVG snapshot<br/>docs/images/pcb.png, 3d.png")]
+    gerbers[("dist/gerbers.zip<br/>Gerbers, BOM, pick and place")]
+    fab(["JLCPCB order"])
+
+    rules -. "rules" .-> claude
+    parts -. "part numbers" .-> claude
+    claude -- "writes / edits" --> board
+    claude -- "keeps current" --> readme
+    board --> wiring
+    full --> images
+    full -- "npm run export:gerbers,<br/>before ordering only" --> gerbers --> fab
+    wiring -. "errors, hints" .-> claude
+    place -. "errors, hints" .-> claude
+    full -. "errors, renders" .-> claude
+```
+
+Solid arrows are data flow, dashed arrows are inputs and feedback to Claude. The `*.circuit.tsx` board files (and the helper modules they import) are what Claude edits; the `tsci` checks and `npm run` scripts are fixed runners.
+
 ## Status
 
 Template: placeholder example only, no real design yet.
