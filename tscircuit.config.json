@@ -1,4 +1,6 @@
 {
   "$schema": "https://cdn.jsdelivr.net/npm/@tscircuit/cli/types/tscircuit.config.schema.json",
-  "ignoredFiles": ["docs", "dist"]
+  "ignoredFiles": ["docs", "dist"],
+  "pcbSnapshotSettings": { "showCourtyards": true },
+  "build": { "routingDisabled": true }
 }
